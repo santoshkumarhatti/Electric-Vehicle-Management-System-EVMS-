@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recharge Locations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body, html {
+      margin: 0;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    #mapContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #mapFrame {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapContainer">
+    <iframe id="mapFrame" src="" frameborder="0"></iframe>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCpxJEcYTXPj_aDQSsmJYw8pnDQyGu4EAI",
+      authDomain: "ev-web-santu.firebaseapp.com",
+      databaseURL: "https://ev-web-santu-default-rtdb.firebaseio.com",
+      projectId: "ev-web-santu",
+      storageBucket: "ev-web-santu.appspot.com",
+      messagingSenderId: "ev-web-santu.appspot.com",
+      appId: "1:742291728709:web:ec4bcc85abc154898bf62c"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Check user authentication state
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, load the map
+        loadMap();
+      } else {
+        // User is not signed in, hide the map
+        hideMap();
+      }
+    });
+
+    // Function to load the map
+    function loadMap() {
+      var mapFrame = document.getElementById("mapFrame");
+      mapFrame.src = "https://www.google.com/maps/d/embed?mid=18Ig09Cuph-wNw7K9FWXpE7S_HxOhro0&ehbc=2E312F&markers=&logo=0&iwloc=near";
+      mapFrame.style.display = "block";
+    }
+
+    // Function to hide the map
+    function hideMap() {
+      var mapFrame = document.getElementById("mapFrame");
+      mapFrame.style.display = "none";
+    }
+  </script>
+</body>
+</html>

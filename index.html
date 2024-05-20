@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Electro Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('login_image.jpeg'); /* Replace 'your-image-url.jpg' with the URL of your background image */
+      background-repeat: no-repeat;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      width: calc(75vw);
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(224, 242, 233, 0.7); /* Light Green with 70% opacity */
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #000;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+            color: #000;
+      font-size: 18px; 
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+       font-size: 18px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .error-message {
+      color: red;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    /* Added CSS for logo */
+    .logo {
+      display: block;
+      margin: 0 auto;
+      max-width: 200px;
+      width: 100%;
+    }
+  </style>
+  <!-- Include Firebase JavaScript SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-auth.js"></script>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCpxJEcYTXPj_aDQSsmJYw8pnDQyGu4EAI",
+      authDomain: "ev-web-santu.firebaseapp.com",
+      databaseURL: "https://ev-web-santu-default-rtdb.firebaseio.com",
+      projectId: "ev-web-santu",
+      storageBucket: "ev-web-santu.appspot.com",
+      messagingSenderId: "ev-web-santu.appspot.com",
+      appId: "1:742291728709:web:ec4bcc85abc154898bf62c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Firebase login function
+    function login() {
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+      var errorMessageElement = document.getElementById("error-message");
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+          // Login successful, redirect to another page
+          window.location.href = "menu.html";
+        })
+        .catch(function(error) {
+          // Handle errors
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log("Error:", errorCode, errorMessage);
+
+          // Display error message
+          errorMessageElement.textContent = "Login failed. Please check your email and password.";
+        });
+    }
+
+    // Check if the user is already authenticated
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is logged in, redirect to another page
+        window.location.href = "menu.html";
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Electro Logo" class="logo">
+    <h1>Electro Login</h1>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" required>
+    </div>
+
+    <button type="button" onclick="login()">Login</button>
+
+    <p id="error-message" class="error-message"></p>
+  </div>
+</body>
+</html>

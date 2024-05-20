@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spot Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    body {
+      background-image: url('spot_images.jpeg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h4>Spot Service</h4>
+      </div>
+      <div class="card-body">
+        <form id="myForm">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label for="vehicleNo">Vehicle Number</label>
+            <input type="text" class="form-control" id="vehicleNo" placeholder="Enter your vehicle number">
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input type="text" class="form-control" id="phoneNumber" placeholder="Enter your phone number">
+          </div>
+          <div class="form-group">
+            <label for="issue">Issue</label>
+            <input type="text" class="form-control" id="issue" placeholder="Enter the issue with your vehicle">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="location" placeholder="Enter your location">
+              <div class="input-group-append">
+                <button class="btn btn-primary" id="locateButton" type="button">Locate</button>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+          <div class="form-group" style="text-align: center; margin-top: 1rem;">
+            <label for="recordNumber">Record Number</label>
+            <span id="recordNumber"></span>
+          </div>
+          <div style="text-align: center; margin-top: 1rem;">
+            <p><strong>Note:</strong> A nominal charge of Rs. 100 will be charged.</p>
+          </div>
+          <div id="thankYouMessage" style="display: none; text-align: center; margin-top: 1rem;">
+            <p>Please copy the above ID for future reference</p>
+            <p>Thank you for choosing us!</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCpxJEcYTXPj_aDQSsmJYw8pnDQyGu4EAI",
+      authDomain: "ev-web-santu.firebaseapp.com",
+      databaseURL: "https://ev-web-santu-default-rtdb.firebaseio.com",
+      projectId: "ev-web-santu",
+      storageBucket: "ev-web-santu.appspot.com",
+      messagingSenderId: "ev-web-santu.appspot.com",
+      appId: "1:742291728709:web:ec4bcc85abc154898bf62c"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Check user authentication state
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, allow access to the entire website
+        enableAccess(user.email); // Pass the user's email to the enableAccess function
+      } else {
+        // User is not signed in, redirect to the previous page or show an access denied message
+        var redirect = localStorage.getItem('redirect');
+        if (redirect) {
+          localStorage.removeItem('redirect');
+          window.location.replace(redirect);
+        } else {
+          // If no previous page available, redirect to a default page
+          window.location.replace('404.html');
+        }
+      }
+    });
+
+    // Function to enable access to the authenticated user
+    function enableAccess(email) {
+      // Add an event listener to the form submission
+      document.getElementById("myForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from being submitted through traditional means
+
+        // Get the input values
+        var name = document.getElementById("name").value;
+        var vehicleNo = document.getElementById("vehicleNo").value;
+        var phoneNumber = document.getElementById("phoneNumber").value;
+        var issue = document.getElementById("issue").value;
+        var location = document.getElementById("location").value;
+
+        // Validate name field
+        if (!/^[a-zA-Z\s]*$/.test(name)) {
+          alert("Please enter a valid name (only characters and spaces allowed).");
+          return;
+        }
+
+        // Validate phone number field
+        if (!/^\d+$/.test(phoneNumber)) {
+          alert("Please enter a valid phone number (only numbers allowed).");
+          return;
+        }
+
+        // Create a new record object with empty values for status and amount
+        var record = {
+          name: name,
+          vehicleNo: vehicleNo,
+          phoneNumber: phoneNumber,
+          issue: issue,
+          location: location,
+          email: email, // Add the email field to the record object
+          status: "",
+          amount: ""
+        };
+
+        // Save the record to the Firebase database
+        var database = firebase.database();
+        var recordsRef = database.ref("spot-service");
+        var newRecordRef = recordsRef.push(record);
+        var recordNumber = newRecordRef.key;
+        document.getElementById("recordNumber").textContent = recordNumber;
+
+        // Clear the form inputs
+        document.getElementById("myForm").reset();
+
+        // Display the "Thank you" message for 10 seconds
+        document.getElementById("thankYouMessage").style.display = "block";
+      });
+
+      document.getElementById("recordNumber").addEventListener("click", function() {
+        var recordNumber = document.getElementById("recordNumber").textContent;
+        navigator.clipboard.writeText(recordNumber).then(function() {
+          alert("Record number copied to clipboard: " + recordNumber);
+        }, function() {
+          alert("Unable to copy record number to clipboard.");
+        });
+        recordNumber.classList.add("highlight");
+        setTimeout(function() {
+          recordNumber.classList.remove("highlight");
+        }, 1000);
+      });
+
+      document.getElementById("locateButton").addEventListener("click", function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            document.getElementById("location").value = latitude + ", " + longitude;
+          }, function(error) {
+            console.log(error);
+            alert("Unable to retrieve your location.");
+          });
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

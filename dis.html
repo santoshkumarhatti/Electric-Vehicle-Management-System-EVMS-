@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Service Records</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    body {
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-color: #eaf7f0; /* Fallback color in case the image is not available or doesn't cover the entire background */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Spot Service Records</h2>
+    <form id="searchForm" class="mb-4">
+      <div class="form-group">
+        <label for="recordKey">Record Key</label>
+        <input type="text" class="form-control" id="recordKey" placeholder="Enter record key">
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Vehicle No</th>
+          <th>Phone No</th>
+          <th>Issue</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="dataDisplay"></tbody>
+    </table>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCpxJEcYTXPj_aDQSsmJYw8pnDQyGu4EAI",
+      authDomain: "ev-web-santu.firebaseapp.com",
+      databaseURL: "https://ev-web-santu-default-rtdb.firebaseio.com",
+      projectId: "ev-web-santu",
+      storageBucket: "ev-web-santu.appspot.com",
+      messagingSenderId: "ev-web-santu.appspot.com",
+      appId: "1:742291728709:web:ec4bcc85abc154898bf62c"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Check user authentication state
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, allow access to the entire website
+        enableAccess();
+      } else {
+        // User is not signed in, redirect to the previous page or show an access denied message
+        var redirect = localStorage.getItem('redirect');
+        if (redirect) {
+          localStorage.removeItem('redirect');
+          window.location.replace(redirect);
+        } else {
+          // If no previous page available, redirect to a default page
+          window.location.replace('404.html');
+        }
+      }
+    });
+
+    function enableAccess() {
+      // Enable any additional functionality or show content that should be accessible to authenticated users
+      // Reference to the Firebase database
+      var database = firebase.database();
+      var dataRef = database.ref();
+
+      // Retrieve the data from Firebase for the specified record key and display it
+      function displayData(recordKey) {
+        var recordRef = database.ref("spot-service/" + recordKey);
+        recordRef.once("value", function(snapshot) {
+          var dataDisplay = document.getElementById("dataDisplay");
+          dataDisplay.innerHTML = "";
+
+          // Check if data exists for the given record key
+          if (snapshot.exists()) {
+            var record = snapshot.val();
+
+            // Create a new table row for the record
+            var row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${record.name}</td>
+              <td>${record.vehicleNo}</td>
+              <td>${record.phoneNumber}</td>
+              <td>${record.issue}</td>
+              <td>${record.location}</td>
+              <td>${record.status}</td>
+              <td>${record.amount}</td>
+            `;
+
+            dataDisplay.appendChild(row);
+          } else {
+            var noDataRow = document.createElement("tr");
+            noDataRow.innerHTML = "<td colspan='7'>No data found for the entered record key.</td>";
+            dataDisplay.appendChild(noDataRow);
+          }
+        });
+      }
+
+      // Add an event listener to the form submission
+      document.getElementById("searchForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from being submitted through traditional means
+
+        // Get the input value
+        var recordKey = document.getElementById("recordKey").value.trim();
+
+        // Display data based on the input record key
+        if (recordKey !== "") {
+          displayData(recordKey);
+        } else {
+          alert("Please enter ID.");
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error Message</title>
+  <style>
+    body {
+      background-color: #E0F2E9;;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      margin-top: 100px;
+    }
+
+    h1 {
+      color: black;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: black;
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      background-color: white;
+      color: black;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #e2e2e2;
+    }
+
+    .logo {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Logo" class="logo">
+    <h1 style="color: black;">Oops, something went wrong!</h1>
+    <p>
+      <span id="errorMessage"></span>
+      Please try again later.
+    </p>
+    <button class="button" onclick="window.history.back()">Go Back</button>
+  </div>
+
+  <script>
+    // Get the error message from the query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMessage = urlParams.get('error');
+
+    // Display appropriate error message
+    const errorMessageElement = document.getElementById('errorMessage');
+    if (errorMessage === 'login') {
+      errorMessageElement.innerText = "You may be trying to access this page without logging in.";
+    } else if (errorMessage === 'notfound') {
+      errorMessageElement.innerText = "The requested page was not found.";
+    } else if (errorMessage === 'forbidden') {
+      errorMessageElement.innerText = "Access to this page is forbidden.";
+    } else if (errorMessage === 'expired') {
+      errorMessageElement.innerText = "Your session has expired. Please log in again.";
+    } else if (errorMessage === 'timeout') {
+      errorMessageElement.innerText = "The request timed out. Please try again later.";
+    } else {
+      errorMessageElement.innerText = "An error occurred.";
+    }
+  </script>
+</body>
+</html>

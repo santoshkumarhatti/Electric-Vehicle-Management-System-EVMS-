@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Electro Services</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('menu_images.jpeg');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    header img {
+      width: 200px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333333;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .button {
+      background-color: #555555;
+      color: #ffffff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 4px;
+      min-width: 200px;
+    }
+
+    .button:hover {
+      background-color: #444444;
+    }
+
+    .logout-button {
+      background-color: #FF0000;
+      color: #ffffff;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 4px;
+      min-width: 200px;
+    }
+
+    .logout-button:hover {
+      background-color: #CC0000;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .toolbar-button {
+      background-color: #555555;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 5px;
+    }
+
+    .toolbar-dropdown {
+      position: absolute;
+      top: 60px;
+      background-color: #f9f9f9;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      min-width: 200px;
+      padding: 10px;
+    }
+
+    .show {
+      display: block;
+    }
+
+    .toolbar-dropdown button {
+      background-color: #555555;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 5px;
+    }
+
+    .toolbar-dropdown button:hover {
+      background-color: #444444;
+    }
+
+    .profile-container {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+    }
+
+    .profile-button {
+      background-color: #555555;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-left: 10px;
+    }
+
+    .profile-button:hover {
+      background-color: #444444;
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      top: 40px;
+      right: 20px;
+      background-color: #f9f9f9;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      display: none;
+      padding: 10px;
+      min-width: 200px;
+    }
+
+    .profile-dropdown .show {
+      display: block;
+    }
+
+    .profile-info {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Logo">
+    <div class="profile-container">
+      <button class="profile-button" onclick="toggleProfileDropdown()">Profile</button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <p class="profile-info">Email: <span id="userEmail"></span></p>
+        <p class="profile-info">User ID: <span id="userId"></span></p>
+      </div>
+    </div>
+  </header>
+
+  <h1>Electro Services</h1>
+
+  <div class="toolbar">
+    <button class="toolbar-button" onclick="toggleToolbarDropdown()">Menu</button>
+    <div class="toolbar-dropdown" id="toolbarDropdown">
+      <button onclick="openFile('contact.html')">Contact Us</button>
+      <button onclick="openFile('about.html')">About</button>
+      <button onclick="openContact()">Support</button>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button class="button" onclick="openFile('map.html')">Recharge Locations</button>
+    <button class="button" onclick="openFile('spot.html')">Spot Service</button>
+    <button class="button" onclick="openFile('dis.html')">Service Records</button>
+  </div>
+
+  <button class="logout-button" onclick="logout()">Logout</button>
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-auth.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyCpxJEcYTXPj_aDQSsmJYw8pnDQyGu4EAI",
+      authDomain: "ev-web-santu.firebaseapp.com",
+      databaseURL: "https://ev-web-santu-default-rtdb.firebaseio.com",
+      projectId: "ev-web-santu",
+      storageBucket: "ev-web-santu.appspot.com",
+      messagingSenderId: "ev-web-santu.appspot.com",
+      appId: "1:742291728709:web:ec4bcc85abc154898bf62c"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Check user authentication state
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in, allow access to the entire website
+        enableAccess(user.uid, user.email);
+      } else {
+        // User is not signed in, redirect to the previous page or show an access denied message
+        var redirect = localStorage.getItem('redirect');
+        if (redirect) {
+          localStorage.removeItem('redirect');
+          window.location.replace(redirect);
+        } else {
+          // If no previous page available, redirect to a default page
+          window.location.replace('404.html');
+        }
+      }
+    });
+
+    function enableAccess(userId, userEmail) {
+      var userIdElement = document.getElementById("userId");
+      var userEmailElement = document.getElementById("userEmail");
+      userIdElement.textContent = userId;
+      userEmailElement.textContent = userEmail;
+    }
+
+    function openFile(filename) {
+      window.location.href = filename;
+    }
+
+    function openContact() {
+      var email = 'support@electroservices.com';
+      var subject = 'Support Request';
+      var body = 'Please write your message here.';
+      var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      window.open(mailtoUrl);
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(function() {
+        // Clear user authentication state
+        firebase.auth().signOut().then(function() {
+          // Sign-out successful, redirect to the previous page
+          history.back();
+        }).catch(function(error) {
+          console.log("Error:", error);
+        });
+      }).catch(function(error) {
+        console.log("Error:", error);
+      });
+    }
+
+    function toggleProfileDropdown() {
+      var profileDropdown = document.getElementById("profileDropdown");
+      profileDropdown.classList.toggle("show");
+    }
+
+    function toggleToolbarDropdown() {
+      var toolbarDropdown = document.getElementById("toolbarDropdown");
+      toolbarDropdown.classList.toggle("show");
+    }
+  </script>
+</body>
+</html>
